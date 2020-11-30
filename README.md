@@ -2,6 +2,10 @@
 
 Advent of Code 2020 is here! Yay!
 
+## Status
+
+![CI](https://github.com/metamorph/advent-of-code-2020/workflows/CI/badge.svg)
+
 ## Usage
 
 Run the project's tests (they'll fail until you edit them):
