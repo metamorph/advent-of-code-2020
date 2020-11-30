@@ -4,4 +4,4 @@
 
 (deftest a-test
   (testing "Don't fix me. I will not fail!"
-    (is (= 1 1))))
+    (is (= 1 2))))
