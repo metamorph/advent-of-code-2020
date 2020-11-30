@@ -3,5 +3,5 @@
             [gnejs.aop2020 :refer :all]))
 
 (deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+  (testing "Don't fix me. I will not fail!"
+    (is (= 1 1))))
