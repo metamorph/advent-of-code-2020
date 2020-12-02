@@ -1,14 +1,10 @@
 (ns gnejs.day02
-  (:require [clojure.java.io :as io]))
+  (:require [gnejs.aop2020 :refer [read-lines]]))
 
-(defn input->lines "Read test-data"
-  []
-  (-> (io/resource "day02.txt")
-      (io/reader)
-      (line-seq)))
+(defn input->lines "Read test-data" []
+  (read-lines "day02.txt"))
 
-(def PATTERN "Pattern to parse a line"
-  #"(\d+)-(\d+)\s+([a-z])\:\s+(.+)$")
+(def PATTERN "Pattern to parse a line" #"(\d+)-(\d+)\s+([a-z])\:\s+(.+)$")
 
 (defn line->rule
   "Turn a rule into data."

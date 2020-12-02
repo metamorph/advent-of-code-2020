@@ -1,12 +1,10 @@
 (ns gnejs.day01
   (:require [clojure.math.combinatorics :refer [combinations]]
-            [clojure.java.io :as io]))
+            [gnejs.aop2020 :refer [read-lines]]))
 
-(defn input []
-  (->> (io/resource "day01.txt")
-       (io/reader)
-       (line-seq)
-       (map #(Integer/parseInt %))))
+
+(defn input [] (->> (read-lines "day01.txt")
+                    (map #(Integer/parseInt %))))
 
 (defn solve [data count target]
   (->> (combinations data count)

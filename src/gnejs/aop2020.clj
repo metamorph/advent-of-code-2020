@@ -1,6 +1,11 @@
-(ns gnejs.aop2020)
+(ns gnejs.aop2020
+  "Utility functions!"
+  (:require [clojure.java.io :as io]
+            [clojure.string :as str]))
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(defn read-lines
+  "Read content from `resource/` and return lines."
+  [name]
+  (-> (io/resource name)
+      (slurp)
+      (str/split-lines)))
