@@ -1,5 +1,6 @@
 (ns gnejs.day04
-  (:require [clojure.string :as str]
+  (:require [clojure.spec.alpha :as s]
+            [clojure.string :as str]
             [gnejs.aop2020 :refer [read-lines]]))
 
 (def KV-PATTERN #"(.*[^\:])\:(.*)")
@@ -49,3 +50,14 @@
        (pid? (:pid p))))
 
 (defn solve-2 [passports] (count (filter valid-passport? passports)))
+
+;; Alternate implementation using Clojure Spec
+(s/def ::byr byr?)
+(s/def ::iyr iyr?)
+(s/def ::eyr eyr?)
+(s/def ::hgt hgt?)
+(s/def ::hcl hcl?)
+(s/def ::ecl ecl?)
+(s/def ::pid pid?)
+(s/def ::passport (s/keys :req-un [::byr ::iyr ::eyr ::hgt ::hcl ::ecl ::pid]))
+(defn solve-2-spec [passports] (count (filter #(s/valid? ::passport %) passports)))
