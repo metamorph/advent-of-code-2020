@@ -18,6 +18,7 @@
     (if (nil? line)
       ;; No more lines
       (conj passports current)
+      ;; break or merge
       (if (str/blank? line)
         (recur tail {} (conj passports current))
         (recur tail (merge current (line->map line)) passports)))))
