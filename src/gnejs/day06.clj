@@ -1,5 +1,5 @@
 (ns gnejs.day06
-  (:require [clojure.set :refer [union]]
+  (:require [clojure.set :refer [union intersection]]
             [clojure.string :as str]
             [gnejs.aop2020 :refer [read-lines]]))
 
@@ -8,9 +8,11 @@
        (partition-by str/blank?)
        (remove (partial = (list "")))))
 
+(defn group-score [join-fn answers]
+  (count (apply join-fn (map set answers))))
+
 (defn solve-1 [groups]
-  (let [sets (map (fn [group]
-                    (reduce (fn [s answer] (union s (set answer)))
-                            #{} group))
-                  groups)]
-    (reduce + 0 (map count sets))))
+  (reduce + 0 (map (partial group-score union) groups)))
+
+(defn solve-2 [groups]
+  (reduce + 0 (map (partial group-score intersection) groups)))
