@@ -8,7 +8,7 @@
   (let [[_ color content] (re-find BAG-PATTERN line)
         contents          (map (fn [[_ n color]] {:color color
                                                   :count (Integer/parseInt n)})
-                                     (re-seq CONTENT-PATTERN content))]
+                               (re-seq CONTENT-PATTERN content))]
     {:color color
      :contains contents}))
 
@@ -28,12 +28,13 @@
     (count (set (parent-bags lookup "shiny gold")))))
 
 (defn count-child-bags [lookup color]
-  (reduce (fn [sum [color n]]
-            (+ sum (* n (count-child-bags lookup color))))
-          1 (get lookup color)))
+  (if-let [children (seq (get lookup color))]
+    (+ (apply + (map second children))
+       (apply + (map (fn [[c n]] (* n (count-child-bags lookup c))) children)))
+    0))
 
 (defn solve-2 [rules]
   (let [lookup (reduce (fn [m {:keys [color contains]}]
                          (assoc m color (map (fn [{:keys [color count]}] [color count]) contains)))
                        {} rules)]
-    lookup))
+    (count-child-bags lookup "shiny gold")))
