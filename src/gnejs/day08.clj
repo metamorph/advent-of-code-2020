@@ -1,18 +1,17 @@
 (ns gnejs.day08
-  (:require [gnejs.aop2020 :refer [read-lines]]))
+  (:require [gnejs.aop2020 :refer [read-lines read-and-parse]]))
 
-(def OP-PATTERN #"(\w+)\s+([+-])(\d+)")
-(defn line->op [line]
-  (let [[_ op s arg] (re-find OP-PATTERN line)
-        arg          (Integer/parseInt arg)]
-    [(keyword op)
-     (case s
-       "+" arg
-       "-" (- arg))]))
-
-(defn lines->prg [lines]
-  (let [ops (mapv line->op lines)]
-    {:ops ops}))
+(defn read-ops [res]
+  (let [re #"(jmp|nop|acc)\s+([+-])(\d+)"]
+    (hash-map
+     :ops
+     (read-and-parse
+      res
+      (fn [line]
+        (let [[_ op sign v] (re-find re line)
+              v             (Integer/parseInt v)]
+          (vector (keyword op)
+                  (if (= sign "-") (- v) v))))))))
 
 (defn run-prg
   "Try running `prg` to a successful state. Returns either

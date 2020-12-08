@@ -9,3 +9,13 @@
   (-> (io/resource name)
       (slurp)
       (str/split-lines)))
+
+(defn read-and-parse
+  "Feed each line to `line-fn` and return a seq from the result.
+   If `line-fn` returns `nil` the line is excluded."
+  [resource-name line-fn]
+  (mapcat (fn [l]
+            (if-let [parsed (line-fn l)]
+              (list parsed)
+              (list)))
+          (read-lines resource-name)))
