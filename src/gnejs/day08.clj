@@ -5,13 +5,13 @@
   (let [re #"(jmp|nop|acc)\s+([+-])(\d+)"]
     (hash-map
      :ops
-     (read-and-parse
-      res
-      (fn [line]
-        (let [[_ op sign v] (re-find re line)
-              v             (Integer/parseInt v)]
-          (vector (keyword op)
-                  (if (= sign "-") (- v) v))))))))
+     (vec (read-and-parse
+           res
+           (fn [line]
+             (let [[_ op sign v] (re-find re line)
+                   v             (Integer/parseInt v)]
+               (vector (keyword op)
+                       (if (= sign "-") (- v) v)))))))))
 
 (defn run-prg
   "Try running `prg` to a successful state. Returns either
