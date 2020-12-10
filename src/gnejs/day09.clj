@@ -25,7 +25,7 @@
       (println "Not found!"))
 
     (let [partitions (partition partition-size 1 ns)
-          match (first (filter (fn [n] (= target (apply + n))) partitions))]
+          match      (first (filter (fn [n] (= target (apply + n))) partitions))]
       (if match
         [(apply min match)
          (apply max match)]
