@@ -38,6 +38,24 @@
        (filter (partial = status))
        (count)))
 
+(defn dir-coords [rows cols p dir]
+  (let [coords (rest (iterate #(map + % dir) p))]
+    (take-while (fn [[x y]]
+                  (and (<= 0 x (dec cols))
+                       (<= 0 y (dec rows))))
+                coords)))
+(defn neighbours-in-sight [{:keys [rows cols seats]} pos status]
+  (let [view-fn (fn [dir]
+                  (let [coord (dir-coords rows cols pos dir)]
+                    (first
+                     (filter #(#{\L \#} %)
+                             (map #(get seats %) coord)))))
+        dirs (list [-1 0] [-1 -1] [0 -1] [1 -1] [1 0] [1 1] [0 1] [-1 1])]
+    (count
+     (filter #(= % status)
+             (keep (partial view-fn) dirs)))))
+
+
 (defn apply-seating-rule [{:keys [seats] :as state}
                           pos]
   (let [status (get seats pos)]
@@ -49,14 +67,25 @@
       ;; leave as is
       status)))
 
-(defn step [{:keys [seats] :as state}]
+(defn apply-seating-rule-2 [{:keys [seats] :as state}
+                            pos]
+  (let [status (get seats pos)]
+    (case status
+      \L (if (zero? (neighbours-in-sight state pos \#))
+           \# \L)
+      \# (if (<= 5 (neighbours-in-sight state pos \#))
+           \L \#)
+      ;; leave as is
+      status)))
+
+(defn step [{:keys [seats] :as state} rule-fn]
   (assoc state :seats
          (reduce (fn [m [[x y :as pos] _]]
-                   (assoc m pos (apply-seating-rule state pos)))
+                   (assoc m pos (rule-fn state pos)))
                  {} seats)))
 
-(defn solve-1 [state]
-  (let [stable (->> (iterate step state)
+(defn solve [state seating-rule-fn]
+  (let [stable (->> (iterate #(step % seating-rule-fn) state)
                     (partition 2 1)
                     (drop-while #(apply not= %))
                     (first)
@@ -65,3 +94,6 @@
     (println "Taken seats:"
              (count (filter (fn [[_ v]] (= v \#)) (:seats stable))))
     stable))
+
+(defn solve-1 [state] (solve state apply-seating-rule))
+(defn solve-2 [state] (solve state apply-seating-rule-2))
