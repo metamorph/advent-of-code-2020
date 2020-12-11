@@ -4,6 +4,15 @@
 (defn coords [{:keys [rows cols]}]
   (for [row (range rows), col (range cols)] [col row]))
 
+(defn neighbour-coords [{:keys [rows cols] :as state}
+                        [px py :as p]]
+  (->> (for [x     (range -1 2) y (range -1 2)
+             :when (not= 0 x y)] [x y])
+       (map #(map + p %))
+       (filter (fn [[x y]]
+                 (and (<= 0 x (dec cols))
+                      (<= 0 y (dec rows)))))))
+
 (defn input [name]
   (let [rows   (vec (read-and-parse name vec))
         state  {:rows (count rows)
@@ -22,3 +31,37 @@
     (doseq [x (range cols)]
       (print (get seats [x y] \.)))
     (println)))
+
+(defn neighbours-in-status [state pos status]
+  (->> (neighbour-coords state pos)
+       (map #(get (:seats state) %))
+       (filter (partial = status))
+       (count)))
+
+(defn apply-seating-rule [{:keys [seats] :as state}
+                          pos]
+  (let [status (get seats pos)]
+    (case status
+      \L (if (zero? (neighbours-in-status state pos \#))
+           \# \L)
+      \# (if (<= 4 (neighbours-in-status state pos \#))
+           \L \#)
+      ;; leave as is
+      status)))
+
+(defn step [{:keys [seats] :as state}]
+  (assoc state :seats
+         (reduce (fn [m [[x y :as pos] _]]
+                   (assoc m pos (apply-seating-rule state pos)))
+                 {} seats)))
+
+(defn solve-1 [state]
+  (let [stable (->> (iterate step state)
+                    (partition 2 1)
+                    (drop-while #(apply not= %))
+                    (first)
+                    (first))]
+    (print-state stable)
+    (println "Taken seats:"
+             (count (filter (fn [[_ v]] (= v \#)) (:seats stable))))
+    stable))
