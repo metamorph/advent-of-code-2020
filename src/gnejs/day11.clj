@@ -4,14 +4,14 @@
 (defn coords [{:keys [rows cols]}]
   (for [row (range rows), col (range cols)] [col row]))
 
-(defn neighbour-coords [{:keys [rows cols] :as state}
-                        [px py :as p]]
-  (->> (for [x     (range -1 2) y (range -1 2)
-             :when (not= 0 x y)] [x y])
-       (map #(map + p %))
-       (filter (fn [[x y]]
-                 (and (<= 0 x (dec cols))
-                      (<= 0 y (dec rows)))))))
+;; Ugly memoization hack to speed things up.
+(def nbcoords (memoize (fn [rows cols [px py :as p]]
+                         (->> (for [x     (range -1 2) y (range -1 2)
+                                    :when (not= 0 x y)] [x y])
+                              (map #(map + p %))
+                              (filter (fn [[x y]]
+                                        (and (<= 0 x (dec cols))
+                                             (<= 0 y (dec rows)))))))))
 
 (defn input [name]
   (let [rows   (vec (read-and-parse name vec))
@@ -32,9 +32,9 @@
       (print (get seats [x y] \.)))
     (println)))
 
-(defn neighbours-in-status [state pos status]
-  (->> (neighbour-coords state pos)
-       (map #(get (:seats state) %))
+(defn neighbours-in-status [{:keys [rows cols seats]} pos status]
+  (->> (nbcoords rows cols pos)
+       (map #(get seats %))
        (filter (partial = status))
        (count)))
 
