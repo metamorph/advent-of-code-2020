@@ -18,6 +18,16 @@
      (drop turn-count
            (drop-while #(not= % dir) turns)))))
 
+(defn rotate [[x y] n]
+  (let [rads (* n (/ Math/PI 180))]
+    (vector
+     (Math/round
+      (+ (* x (Math/cos rads))
+         (* y (Math/sin rads))))
+     (Math/round
+      (+ (* (- x) (Math/sin rads))
+         (* y (Math/cos rads)))))))
+
 (defn move [{:keys [dir pos] :as state}
             [action value :as op]]
   (case action
@@ -31,14 +41,16 @@
 
 (defn move-2 [{:keys [waypoint pos] :as state}
               [action value :as op]]
-    :N (update state :waypoint #(map + % (map * [0 -1] [1 value])))
-    :S (update state :waypoint #(map + % (map * [0 1] [1 value])))
-    :E (update state :waypoint #(map + % (map * [1 0] [value 1])))
-    :W (update state :waypoint #(map + % (map * [-1 0] [value 1])))
-    :F (update state :pos #(map + % (map * [value value] waypoint)))
-  ;; TODO: Turning
-
-  )
+  (let [new-state (case action
+                    :N (update state :waypoint #(map + % (map * [0 -1] [1 value])))
+                    :S (update state :waypoint #(map + % (map * [0 1] [1 value])))
+                    :E (update state :waypoint #(map + % (map * [1 0] [value 1])))
+                    :W (update state :waypoint #(map + % (map * [-1 0] [value 1])))
+                    :F (update state :pos #(map + % (map * [value value] waypoint)))
+                    :R (update state :waypoint rotate (- value))
+                    :L (update state :waypoint rotate value))]
+    (println "IN:" state " + " op " = " new-state)
+    new-state))
 
 (defn solve-1 [ops]
   (let [state (reduce move
@@ -51,7 +63,7 @@
 
 (defn solve-2 [ops]
   (let [state (reduce move-2
-                      {:waypoint [10 1]
+                      {:waypoint [10 -1]
                        :pos [0 0]}
                       ops)]
     (println "State:" state)
