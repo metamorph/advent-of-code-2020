@@ -36,3 +36,24 @@
 
 (defn solve-1 [name]
   (apply + (vals (run-prg (input name)))))
+
+(defn memory-expand
+  "Return the memory addresses to update
+  when applying `mask` to int `n`."
+  [mask n]
+;; TODO: Implement me!
+  )
+
+(defn run-prg-2 [ops]
+  (loop [ops   ops
+         mask  nil
+         state {}]
+    (if-let [[o & args] (first ops)]
+       (case o
+         :mask (recur (next ops) (first args) state)
+         :set  (recur (next ops) mask (reduce (fn [m k] (assoc m k (second args)))
+                                              state (memory-expand mask (first args))))
+         state))))
+
+(defn solve-2 [name]
+  (apply + (vals (run-prg-2 (input name)))))
