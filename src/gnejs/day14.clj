@@ -1,6 +1,7 @@
 (ns gnejs.day14
-  (:require [gnejs.aop2020 :refer [read-lines]]
-            [clojure.string :refer [starts-with?]]))
+  (:require [clojure.math.combinatorics :as math]
+            [clojure.string :refer [starts-with?]]
+            [gnejs.aop2020 :refer [read-lines]]))
 
 (defn dec->binary [n] (Integer/toBinaryString n))
 (defn binary->dec [s] (Integer/parseInt s 2))
@@ -36,6 +37,11 @@
 
 (defn solve-1 [name]
   (apply + (vals (run-prg (input name)))))
+
+(defn combs [mask]
+  (let [c       (count (filter (partial = \X) mask))
+        indices (keep-indexed (fn [i c] (when (= c \X) i)) (reverse mask))]
+    indices))
 
 (defn memory-expand
   "Return the memory addresses to update
