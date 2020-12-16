@@ -33,3 +33,28 @@
     (->> (mapcat identity nearby-tickets)
          (filter pred)
          (reduce + 0))))
+
+(defn rules-matching [rules ns]
+  (set (keep
+        (fn [[id p]] (when (every? p ns) id))
+        rules)))
+
+(defn solve-2 [name]
+  (let [{:keys [rules
+                my-ticket
+                nearby-tickets]} (input name)
+        valid-tickets            (filter (partial every? (apply some-fn (vals rules))) nearby-tickets)
+        positions                (apply map list valid-tickets)
+        seed                     (map (partial rules-matching rules) positions)
+        found-fn                 (fn [sets]
+                                   (reduce (fn [s v] (if (= (count v) 1) (conj s (first v)) s))
+                                           #{} sets))]
+    (loop [result seed]
+      (let [found (found-fn result)]
+        (if (= (count found) (count positions))
+          ;; Done
+          (map (fn [n id] [id n]) my-ticket (map first result))
+
+          (recur
+           (map (fn [s]
+                  (if (= (count s) 1) s (clojure.set/difference s found))) result)))))))
