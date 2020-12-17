@@ -10,7 +10,7 @@
          (mapcat (fn [[y row]]
                    (map-indexed
                     (fn [x c]
-                      (vector [x y 0] (= c \#)))
+                      (vector [x y 0 0] (= c \#)))
                     row)))
          (into {}))))
 
@@ -31,13 +31,14 @@
 
 (defn surroundings
   "Find the surrounding coords for a point"
-  [[x y z]]
+  [[x y z v]]
   (for [x' (range (dec x) (+ x 2))
         y' (range (dec y) (+ y 2))
         z' (range (dec z) (+ z 2))
-        :when (not= [x y z] [x' y' z'])] (vector x' y' z')))
+        v' (range (dec v) (+ v 2))
+        :when (not= [x y z v] [x' y' z' v'])] (vector x' y' z' v')))
 
-(defn active? [state [x y z :as pt]]
+(defn active? [state [x y z v :as pt]]
   (let [pt-active? (get state pt false)
         active-neighbours (->> (surroundings pt)
                                (map #(get state % false))
@@ -58,18 +59,22 @@
                     (inc (apply max (map first pts))))
             (vector (dec (apply min (map second pts)))
                     (inc (apply max (map second pts))))
+            (vector (dec (apply min (map #(first (take 1 (drop 2 %))) pts)))
+                    (inc (apply max (map #(first (take 1 (drop 2 %))) pts))))
             (vector (dec (apply min (map last pts)))
-                    (inc (apply max (map last pts)))))))
+                    (inc (apply max (map last pts))))
+            )))
 
 (defn turn [state]
   (let [state                                       (drop-inactive state)
-        [[min-x max-x] [min-y max-y] [min-z max-z]] (bounds state)]
-    (reduce (fn [m [x y z :as pt]] (assoc m pt (active? state pt)))
+        [[min-x max-x] [min-y max-y] [min-z max-z] [min-v max-v]] (bounds state)]
+    (reduce (fn [m [x y z v :as pt]] (assoc m pt (active? state pt)))
             {} (for [x (range min-x (inc max-x))
                      y (range min-y (inc max-y))
-                     z (range min-z (inc max-z))] [x y z]))))
+                     z (range min-z (inc max-z))
+                     v (range min-v (inc max-v))] [x y z v]))))
 
 (defn solve-1 [name turns]
   (let [state (first (drop turns (iterate turn (input name))))]
-    (print-slice state 0)
+    ;; (print-slice state 0)
     (count (drop-inactive state))))
